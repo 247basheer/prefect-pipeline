@@ -3,13 +3,13 @@ pool:
 
 variables:
 - name: ACR
-  value: ACR_URL
+  value: bashcon
 - name: AZURE_STORAGE_CONNECTION_STRING 
   value: AZURE_STORAGE_CONNECTION_STRING
 - name: ACR_USER
-  value: ACR_USER
+  value: bashCon
 - name: ACR_PASSWORD
-  value: ACR_PASSWORD
+  value: ZtlUkWLCJ1y0JE+rwOLEdQHjFpBQhmQy
 - name: PROJECT
   value: prefect
 
