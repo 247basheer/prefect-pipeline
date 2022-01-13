@@ -1,0 +1,61 @@
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- name: ACR
+  value: ACR_URL
+- name: AZURE_STORAGE_CONNECTION_STRING 
+  value: AZURE_STORAGE_CONNECTION_STRING
+- name: ACR_USER
+  value: ACR_USER
+- name: ACR_PASSWORD
+  value: ACR_PASSWORD
+- name: PROJECT
+  value: prefect
+
+
+stages:
+- stage: deployment
+  jobs:
+  - job: register
+    pool: private-agent
+    variables:
+       IMAGE_URL: "$(ACR)/$(PROJECT):latest"
+    steps:
+       #register the flows that changed
+       - template: templates/register-flows.yml
+         parameters:
+            project: $(PROJECT)
+  
+  - job: build
+    dependsOn: register
+    steps:
+       #build a docker image and push it to ACR
+       - template: templates/docker-build.yml
+         parameters:
+              image: "$(ACR)/$(PROJECT)"
+              tag: latest
+                    
+       - template: templates/docker-login.yml
+         parameters:
+              repo: $(ACR)
+              user: $(ACR_USER)
+              password: $(ACR_PASSWORD)
+
+       - template: templates/docker-push.yml
+         parameters:
+             image: "$(ACR)/$(PROJECT)"
+             tag: latest
+
+trigger:
+  branches:
+     include:
+        - '*'
+  paths:
+     include:
+       - 'flows/'
+       - 'tasks/'
+       - 'config/'
+     exclude:
+       - '*'
+       - '*__init__.py*'
